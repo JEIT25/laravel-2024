@@ -35,7 +35,16 @@ $pokemons = [
         25,
         "https://unpkg.com/pokeapi-sprites@2.0.2/sprites/pokemon/other/dream-world/25.svg"
     ),
+    new Pokemon(
+        5,
+        "https://unpkg.com/pokeapi-sprites@2.0.2/sprites/pokemon/other/dream-world/5.svg"
+    ),
+    new Pokemon(
+        21,
+        "https://unpkg.com/pokeapi-sprites@2.0.2/sprites/pokemon/other/dream-world/21.svg"
+    )
 ];
+
 // class Task
 // {
 //     public function __construct(
@@ -49,6 +58,17 @@ $pokemons = [
 //     ) {
 //     }
 // }
+
+Route::get('/', function () use ($pokemons) {
+    return view(
+        "index",
+        ["pokemons" => $pokemons]
+    );
+})->name("pokemon.index");
+
+Route::get("/{pokeId}", function ($pokeId) {
+    return "Pokemon Id: " . $pokeId; //! SOLVE THIS ROUTE NOT SHOWING POKEMON ID , SEE URL
+})->name("pokemon.show");
 
 // $tasks = [
 //     new Task(
@@ -88,6 +108,8 @@ $pokemons = [
 //         '2023-03-04 12:00:00'
 //     )
 // ];
+
+
 
 // Route::get('/', function () use ($tasks) { //using use() statement we pass the annoymouse function ,
 //     // so that we can use it inside the index view route
