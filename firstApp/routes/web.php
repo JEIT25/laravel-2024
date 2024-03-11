@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
+use Illuminate\Http\Response;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,115 +15,89 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-class Pokemon
+
+
+class Task
 {
     public function __construct(
-        public int $pokeId,
-        public string $pokeUrlImg
+        public int $id,
+        public string $title,
+        public string $description,
+        public ?string $long_description,
+        public bool $completed,
+        public string $created_at,
+        public string $updated_at
     ) {
     }
 }
 
-$pokemons = [
-    new Pokemon(
-        90,
-        "https://unpkg.com/pokeapi-sprites@2.0.2/sprites/pokemon/other/dream-world/90.svg"
-    ),
-    new Pokemon(
+
+$tasks = [
+    new Task(
         1,
-        "https://unpkg.com/pokeapi-sprites@2.0.2/sprites/pokemon/other/dream-world/1.svg"
+        'Buy groceries',
+        'Task 1 description',
+        'Task 1 long description',
+        false,
+        '2023-03-01 12:00:00',
+        '2023-03-01 12:00:00'
     ),
-    new Pokemon(
-        25,
-        "https://unpkg.com/pokeapi-sprites@2.0.2/sprites/pokemon/other/dream-world/25.svg"
+    new Task(
+        2,
+        'Sell old stuff',
+        'Task 2 description',
+        null,
+        false,
+        '2023-03-02 12:00:00',
+        '2023-03-02 12:00:00'
     ),
-    new Pokemon(
-        5,
-        "https://unpkg.com/pokeapi-sprites@2.0.2/sprites/pokemon/other/dream-world/5.svg"
+    new Task(
+        3,
+        'Learn programming',
+        'Task 3 description',
+        'Task 3 long description',
+        true,
+        '2023-03-03 12:00:00',
+        '2023-03-03 12:00:00'
     ),
-    new Pokemon(
-        21,
-        "https://unpkg.com/pokeapi-sprites@2.0.2/sprites/pokemon/other/dream-world/21.svg"
+    new Task(
+        4,
+        'Take dogs for a walk',
+        'Task 4 description',
+        null,
+        false,
+        '2023-03-04 12:00:00',
+        '2023-03-04 12:00:00'
     )
 ];
 
-// class Task
-// {
-//     public function __construct(
-//         public int $id,
-//         public string $title,
-//         public string $description,
-//         public ?string $long_description,
-//         public bool $completed,
-//         public string $created_at,
-//         public string $updated_at
-//     ) {
-//     }
-// }
 
-Route::get('/', function () use ($pokemons) {
-    return view(
-        "index",
-        ["pokemons" => $pokemons]
-    );
-})->name("pokemon.index");
+Route::get("/", function () {
+    return redirect()->route('task.index');
+});
 
-Route::get("/{pokeId}", function ($pokeId) {
-    return "Pokemon Id: " . $pokeId; //! SOLVE THIS ROUTE NOT SHOWING POKEMON ID , SEE URL
-})->name("pokemon.show");
+Route::get('/tasks', function () use ($tasks) { //using use() statement we pass the annoymouse function ,
+    // so that we can use it inside the index view route
+    return view('index', [
+        'tasks' => $tasks
+    ]); //using associative array as second argument in the,view method
+    //we can pass key-value pairs to the blade template specified
+})->name("task.index");
 
-// $tasks = [
-//     new Task(
-//         1,
-//         'Buy groceries',
-//         'Task 1 description',
-//         'Task 1 long description',
-//         false,
-//         '2023-03-01 12:00:00',
-//         '2023-03-01 12:00:00'
-//     ),
-//     new Task(
-//         2,
-//         'Sell old stuff',
-//         'Task 2 description',
-//         null,
-//         false,
-//         '2023-03-02 12:00:00',
-//         '2023-03-02 12:00:00'
-//     ),
-//     new Task(
-//         3,
-//         'Learn programming',
-//         'Task 3 description',
-//         'Task 3 long description',
-//         true,
-//         '2023-03-03 12:00:00',
-//         '2023-03-03 12:00:00'
-//     ),
-//     new Task(
-//         4,
-//         'Take dogs for a walk',
-//         'Task 4 description',
-//         null,
-//         false,
-//         '2023-03-04 12:00:00',
-//         '2023-03-04 12:00:00'
-//     )
-// ];
+Route::get("/tasks/{id}", function ($id) use ($tasks) {
+    $task = collect($tasks)->firstWhere("id", $id);
+
+    if (!$task) {
+        abort(Response::HTTP_NOT_FOUND);
+    }
+
+    return view("show", [
+        'task' => $task
+    ]);
+
+})->name("task.show");
 
 
-
-// Route::get('/', function () use ($tasks) { //using use() statement we pass the annoymouse function ,
-//     // so that we can use it inside the index view route
-//     return view('index', [
-//         'tasks' => $tasks
-//     ]); //using associative array as second argument in the,view method
-//     //we can pass key-value pairs to the blade template specified
-// })->name("task.index");
-
-// Route::get("/{id}", function ($id) {
-//     return "returned one task, task id: {$id}";
-// })->name("task.show");
 
 // Route::get("/hallo", function () { //redirecting , using redirect() method we pass an argument as to which url to redirect
 //     return redirect("/hi");
@@ -163,3 +139,52 @@ Route::get("/{pokeId}", function ($pokeId) {
 //         return redirect()->route("age-greeter-fallback");
 //     }
 // });
+
+// class Pokemon
+// {
+//     public function __construct(
+//         public int $pokeId,
+//         public string $pokeUrlImg
+//     ) {
+//     }
+// }
+
+// $pokemons = [
+//     new Pokemon(
+//         90,
+//         "https://unpkg.com/pokeapi-sprites@2.0.2/sprites/pokemon/other/dream-world/90.svg"
+//     ),
+//     new Pokemon(
+//         1,
+//         "https://unpkg.com/pokeapi-sprites@2.0.2/sprites/pokemon/other/dream-world/1.svg"
+//     ),
+//     new Pokemon(
+//         25,
+//         "https://unpkg.com/pokeapi-sprites@2.0.2/sprites/pokemon/other/dream-world/25.svg"
+//     ),
+//     new Pokemon(
+//         5,
+//         "https://unpkg.com/pokeapi-sprites@2.0.2/sprites/pokemon/other/dream-world/5.svg"
+//     ),
+//     new Pokemon(
+//         21,
+//         "https://unpkg.com/pokeapi-sprites@2.0.2/sprites/pokemon/other/dream-world/21.svg"
+//     )
+// ];
+
+// Route::get('/', function () use ($pokemons) {
+//     return view(
+//         "index",
+//         ["pokemons" => $pokemons]
+//     );
+// })->name("pokemon.index");
+
+// Route::get("/{pokeId}", function ($pokeId) use ($pokemons) {
+//     $currentPokeImgUrl = null;
+//     foreach ($pokemons as $pokemon) {
+//         if ($pokemon->pokeId == $pokeId) {
+//             $currentPokeImgUrl = $pokemon->pokeUrlImg;
+//         }
+//     };
+//     return "Pokemon Id: " . $pokeId . " - img url: {$currentPokeImgUrl}";
+// })->name("pokemon.show");
