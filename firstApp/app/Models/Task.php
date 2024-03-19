@@ -10,4 +10,9 @@ class Task extends Model
     use HasFactory;
 
     protected $fillable = ['title', 'description', 'long_description']; //!to allow the create method(mass assignment)
+
+    function toggleCompleted() {
+        $this->completed = !$this->completed;
+        $this->save();
+    }
 }

@@ -23,7 +23,8 @@ Route::get("/", function () {
 Route::get('/tasks', function () { //using use() statement we pass the annoymouse function ,
     // so that we can use it inside the index view route
     return view('index', [
-        'tasks' => Task::latest()->get() //all() //gets all tasks available
+        'tasks' => Task::latest()->paginate(10) //all() //gets all tasks available,
+        // pagiante() automatically divide result to different pages,accepts param can divide items per page
     ]); //!using associative array as second argument in the,view method
     //!we can pass key-value pairs to the blade template specified
     //!example use using where:
@@ -35,11 +36,17 @@ Route::view(
     'create'
 )->name("tasks.create"); //use view() directly in routing when u simply create something and not request
 
-Route::get("/tasks/{id}/edit", function ($id) {
+Route::get("/tasks/{task}/edit", function (Task $task) {
     return view("edit", [
-        'task' => Task::findOrFail($id) //call abort function if something is not found
+        'task' => $task //call abort function if something is not found
     ]);
 })->name("tasks.edit");
+
+//!toggle completed or not completed
+Route::put("/tasks/{task}/toggle-completed", function (Task $task) {
+    $task->toggleCompleted();
+    return redirect()->back()->with('success', 'Task Updated Successfully');
+})->name('tasks.toggleCompleted');
 
 Route::get("/tasks/{task}", function (Task $task) {
     // $task = collect($tasks)->firstWhere("id", $id);
@@ -81,6 +88,7 @@ Route::post('/tasks', function (TaskRequest $request) {
 
     // dd($request -> all());;//!dd() method,USE FOR TESTING, test print something meaning dump and die,
 })->name('tasks.store');
+
 
 //! updating(put,saving) existing data form databse using forms
 Route::put('/tasks/{task} ', function (Task $task, TaskRequest $request) {
