@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Home</title>
+    <style>
+        .error-mess {
+            color: red;
+            font-size: 0.8rem;
+        }
+    </style>
 </head>
 
 <body>
@@ -13,7 +19,7 @@
         and name specfied will be called by the section() directive
       --}}
     <div>
-        @yield('title')
+        <h1>@yield('title')</h1>
         <div>@yield('content')</div>
     </div>
 </body>

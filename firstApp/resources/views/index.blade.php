@@ -3,6 +3,7 @@
 
  {{--?   @section directive specfies where/which content to --}}
 {{--?   render the html content inherited from the blade templated specified in the @extends directive --}}
+
 @section('title')
     <div>
         <h2>This the Main Page</h2>
@@ -16,9 +17,14 @@
 @section('content')
     <div>
         <h1>Tasks Available</h1>
+
+@if(session()->has("success"))
+    <div><p>{{session("success")}}</p></div>
+@endif
+
         <ul>
             @forelse($tasks as $task)
-                <li>{{ $task->title }} - <a href="{{ route('task.show', ['id' => $task->id]) }}">show task</a></li>
+                <li>{{ $task->title }} - <a href="{{ route('tasks.show', ['task' => $task->id]) }}">show task</a></li>
             @empty
                 <li>There are no tasks</li>
             @endforelse

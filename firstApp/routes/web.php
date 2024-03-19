@@ -1,7 +1,8 @@
 <?php
-
+use App\Http\Requests\TaskRequest; //!import for grouping same validations
+use App\Models\Task; //import task model
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Http\Request; //!import request , can be use to test print in rout egives access to data being sent
 use Illuminate\Http\Response;
 
 /*
@@ -15,87 +16,116 @@ use Illuminate\Http\Response;
 |
 */
 
-
-
-class Task
-{
-    public function __construct(
-        public int $id,
-        public string $title,
-        public string $description,
-        public ?string $long_description,
-        public bool $completed,
-        public string $created_at,
-        public string $updated_at
-    ) {
-    }
-}
-
-
-$tasks = [
-    new Task(
-        1,
-        'Buy groceries',
-        'Task 1 description',
-        'Task 1 long description',
-        false,
-        '2023-03-01 12:00:00',
-        '2023-03-01 12:00:00'
-    ),
-    new Task(
-        2,
-        'Sell old stuff',
-        'Task 2 description',
-        null,
-        false,
-        '2023-03-02 12:00:00',
-        '2023-03-02 12:00:00'
-    ),
-    new Task(
-        3,
-        'Learn programming',
-        'Task 3 description',
-        'Task 3 long description',
-        true,
-        '2023-03-03 12:00:00',
-        '2023-03-03 12:00:00'
-    ),
-    new Task(
-        4,
-        'Take dogs for a walk',
-        'Task 4 description',
-        null,
-        false,
-        '2023-03-04 12:00:00',
-        '2023-03-04 12:00:00'
-    )
-];
-
-
 Route::get("/", function () {
-    return redirect()->route('task.index');
+    return redirect()->route('tasks.index');
 });
 
-Route::get('/tasks', function () use ($tasks) { //using use() statement we pass the annoymouse function ,
+Route::get('/tasks', function () { //using use() statement we pass the annoymouse function ,
     // so that we can use it inside the index view route
     return view('index', [
-        'tasks' => $tasks
-    ]); //using associative array as second argument in the,view method
-    //we can pass key-value pairs to the blade template specified
-})->name("task.index");
+        'tasks' => Task::latest()->get() //all() //gets all tasks available
+    ]); //!using associative array as second argument in the,view method
+    //!we can pass key-value pairs to the blade template specified
+    //!example use using where:
+    //? App\Models\Task::latest()->where("title","Study programming")->get()
+})->name("tasks.index");
 
-Route::get("/tasks/{id}", function ($id) use ($tasks) {
-    $task = collect($tasks)->firstWhere("id", $id);
+Route::view(
+    '/tasks/create',
+    'create'
+)->name("tasks.create"); //use view() directly in routing when u simply create something and not request
 
-    if (!$task) {
-        abort(Response::HTTP_NOT_FOUND);
-    }
-
-    return view("show", [
-        'task' => $task
+Route::get("/tasks/{id}/edit", function ($id) {
+    return view("edit", [
+        'task' => Task::findOrFail($id) //call abort function if something is not found
     ]);
+})->name("tasks.edit");
 
-})->name("task.show");
+Route::get("/tasks/{task}", function (Task $task) {
+    // $task = collect($tasks)->firstWhere("id", $id);
+    // if (!$task) {
+    //     abort(Response::HTTP_NOT_FOUND);
+    // }
+    return view("show", [
+        "task" => $task //call abort function if something is not found
+    ]);
+})->name("tasks.show");
+
+//! storing(post,saving) data form databse using forms
+Route::post('/tasks', function (TaskRequest $request) {
+    //request ->validate(), validates the data from form using the defined validations keys inside the array
+    // $validated_data = $request->validate([
+    //     'title' => 'required|max:255',
+    //     'description' => 'required',
+    //     'long_description' => 'required'
+    // ]);
+
+    //!using TaskRequest instance model we can group validations that are the same
+    $validated_data = $request->validated();
+    $new_task = Task::create($validated_data);
+
+    // //?create new task using the Task Model,
+    // //?set values using the validated data above
+    // $new_task = new Task;
+    // $new_task->title = $validated_data['title'];
+    // $new_task->description = $validated_data['description'];
+    // $new_task->long_description = $validated_data['long_description'];
+
+    // //?save new task to database
+    // $new_task->save();
+
+    //?then redirect to  a page or something , here we redirecto to the newly added task
+    return redirect()->route('tasks.show', ['task' => $new_task->id])
+        ->with('success', 'Task created successfully!'); //for display flash messages , if refresh dissappers
+    //output found in  show blade template
+
+    // dd($request -> all());;//!dd() method,USE FOR TESTING, test print something meaning dump and die,
+})->name('tasks.store');
+
+//! updating(put,saving) existing data form databse using forms
+Route::put('/tasks/{task} ', function (Task $task, TaskRequest $request) {
+    //request ->validate(), validates the data from form using the defined validations keys inside the array
+    // $validated_data = $request->validate([
+    //     'title' => 'required|max:255',
+    //     'description' => 'required',
+    //     'long_description' => 'required'
+    // ]);
+
+    //!using TaskRequest instance model we can group validations that are the same
+    $validated_data = $request->validated();
+    $task->update($validated_data);
+
+    // //?set found task id in params as new and find in database using Task Model,
+    // //?set values using the validated data above
+    // $new_task = $task;
+    // $new_task->title = $validated_data['title'];
+    // $new_task->description = $validated_data['description'];
+    // $new_task->long_description = $validated_data['long_description'];
+
+    // //?save new task to database
+    // $new_task->save();
+
+    //?then redirect to  a page or something , here we redirecto to the newly added task
+    return redirect()->route('tasks.show', ['task' => $task->id])
+        ->with('success', 'Task updated successfully!'); //for display flash messages , if refresh dissappers
+    //output found in  show blade template
+
+    // dd($request -> all());;//!dd() method,USE FOR TESTING, test print something meaning dump and die,
+})->name('tasks.update');
+
+//delete task using route model binding
+Route::delete('tasks/{task}', function (Task $task) {
+    $task->delete();
+
+    return redirect()->route('tasks.index')
+        ->with('success', 'Task Deleted Successfully');
+})->name("tasks.destroy");
+
+
+
+
+
+
 
 
 
