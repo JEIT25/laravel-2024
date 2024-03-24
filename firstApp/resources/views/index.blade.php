@@ -26,7 +26,11 @@
 
         <ul>
             @forelse($tasks as $task)
-                <li>{{ $task->title }} - <a href="{{ route('tasks.show', ['task' => $task->id]) }}">show task</a></li>
+                <li>{{ $task->title }} -
+                    <a @class(['line-through' => $task->completed]) href="{{ route('tasks.show', ['task' => $task->id]) }}">
+                        show task
+                    </a>
+                </li>
             @empty
                 <li>There are no tasks</li>
             @endforelse

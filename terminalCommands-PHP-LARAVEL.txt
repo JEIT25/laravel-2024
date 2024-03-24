@@ -1,0 +1,19 @@
+TERMINAL COMMANDS:
+code . - starts vscode editor from current directory
+
+PHP COMMANDS:
+php artisan - show all artisan commands
+php -i | findstr "php.ini" - FIND the PATH where php.ini (PHP configuration) is location
+php artisan serve - start-up server (show output)
+php artisan route:list - shows a list of routes available/defined in the app
+php artisan migrate - connect and migrate to database
+php artisan make:model  $table_name  -m - make new model/table
+php artisan migrate:rollback - rollback to last batch of migrations/table structure/revert back last changes in a table
+php artisan db:seed - seed the database command
+php artisan make:factory $factoryName --model=$modelName
+php artisan migrate:refresh --seed - refresh database and seed the database
+php tinker - command line of your application can test fetch data from database
+
+
+LARAVEL COMPOSER COMMANDS:
+create create-project laravel/laravel $folder_name
